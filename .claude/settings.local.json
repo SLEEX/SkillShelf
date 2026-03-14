@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(D:/JunxianLinfile/Project/SkillShelf/**)",
+      "Read(D:/JunxianLinfile/Project/SkillShelf/**)",
+      "Write(D:/JunxianLinfile/Project/SkillShelf/**)",
+      "Edit(D:/JunxianLinfile/Project/SkillShelf/**)",
+      "Glob(D:/JunxianLinfile/Project/SkillShelf/**)",
+      "Grep(D:/JunxianLinfile/Project/SkillShelf/**)",
+      "Bash(npm *)",
+      "Bash(pnpm *)",
+      "Bash(cargo *)",
+      "Bash(git *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(mv *)",
+      "Bash(cp *)",
+      "Bash(rm *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Skill(skill-manager-main)",
+      "mcp__drawio__start_session",
+      "mcp__drawio__create_new_diagram",
+      "mcp__drawio__edit_diagram",
+      "mcp__drawio__get_diagram",
+      "mcp__drawio__export_diagram",
+      "mcp__spec-workflow__*",
+      "mcp__context7__*",
+      "mcp__open-websearch__*"
+    ]
+  }
+}
