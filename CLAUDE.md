@@ -61,6 +61,23 @@ Gemini:       ~/.gemini/skills/
 OpenCode:     ~/.opencode/skills/
 ```
 
+## Git Commit 规则
+
+开发过程中需要**主动**在合适的时机提交 git commit，不需要等用户要求：
+
+- 完成一个完整的功能模块或用户故事（如 US-001 ~ US-006）
+- 完成一个有意义的阶段性里程碑（如项目初始化、数据库 schema 建立、核心组件搭建）
+- 完成一轮重构或 bug 修复
+- 进行了大量文件变更（超过 5 个文件），避免积累过多未提交的改动
+
+Commit message 使用 [Conventional Commits](https://www.conventionalcommits.org/) 格式，中文描述：
+```
+feat: 实现 Skill 导入功能
+fix: 修复分类删除时 symlink 未清理的问题
+refactor: 重构部署状态管理逻辑
+chore: 项目初始化 Tauri + React 脚手架
+```
+
 ## Development Notes
 
 - 目标平台：Phase 1 仅 Windows
