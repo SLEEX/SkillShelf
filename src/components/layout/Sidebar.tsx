@@ -25,14 +25,25 @@ interface SidebarProps {
   onCategoryChange: (id: string) => void;
   categories: Category[];
   onOpenSettings: () => void;
+  platformId: string;
+  onPlatformChange: (id: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeCategoryId, 
   onCategoryChange,
   categories,
-  onOpenSettings
+  onOpenSettings,
+  platformId,
+  onPlatformChange
 }) => {
+  const platforms = [
+    { id: 'claude', name: 'Claude Code', icon: '🤖' },
+    { id: 'codex', name: 'Codex', icon: '🧠' },
+  ];
+
+  const currentPlatform = platforms.find(p => p.id === platformId) || platforms[0];
+
   return (
     <aside className="w-64 border-r bg-muted/30 flex flex-col shrink-0 h-full">
       <div className="p-4 flex items-center gap-2 border-b">
@@ -48,12 +59,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
             目标 AI 平台
           </label>
-          <div className="flex items-center justify-between p-2 rounded-md border bg-card hover:bg-accent cursor-pointer transition-colors shadow-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🤖</span>
-              <span className="text-sm font-semibold">Claude Code</span>
+          <div className="relative group">
+            <div className="flex items-center justify-between p-2 rounded-md border bg-card hover:bg-accent cursor-pointer transition-colors shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{currentPlatform.icon}</span>
+                <span className="text-sm font-semibold">{currentPlatform.name}</span>
+              </div>
+              <ChevronRight size={14} className="text-muted-foreground group-hover:rotate-90 transition-transform" />
             </div>
-            <ChevronRight size={14} className="text-muted-foreground" />
+            
+            {/* Simple dropdown for platform switching */}
+            <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-md shadow-xl hidden group-hover:block z-10 py-1 overflow-hidden animate-in zoom-in-95 duration-100">
+              {platforms.map(p => (
+                <div 
+                  key={p.id}
+                  onClick={() => onPlatformChange(p.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 text-sm cursor-pointer transition-colors",
+                    platformId === p.id ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent"
+                  )}
+                >
+                  <span>{p.icon}</span>
+                  <span>{p.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

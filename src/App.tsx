@@ -24,6 +24,20 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCategoryEnabled, setIsCategoryEnabled] = useState(false);
 
+  const checkInitialSetup = async () => {
+    const db = await getAllCategories(); // Just to ensure DB is ready
+    const settings = await (await import('./services/db')).getDb().then(db => 
+      db.select<any[]>("SELECT value FROM settings WHERE key = 'base_path'")
+    );
+    if (settings.length === 0 || !settings[0].value) {
+      setIsSettingsOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    checkInitialSetup();
+  }, []);
+
   const fetchCategories = async () => {
     const cats = await getAllCategories();
     // Add "All Skills" manually
@@ -106,6 +120,8 @@ function App() {
         onCategoryChange={setActiveCategoryId}
         categories={categories}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        platformId={platformId}
+        onPlatformChange={setPlatformId}
       />
 
       {/* Main Content */}
