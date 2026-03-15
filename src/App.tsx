@@ -10,9 +10,11 @@ import {
 import { Sidebar, Category } from './components/layout/Sidebar';
 import { SkillCard, Skill } from './components/skill/SkillCard';
 import { SettingsModal } from './components/layout/SettingsModal';
-import { getAllCategories, getSkillsByCategory, toggleSkillStatus } from './services/skillService';
+import { getAllCategories, getSkillsByCategory, toggleSkillStatus, getCategoryStatus } from './services/skillService';
 import { pickAndImportSkill } from './services/importService';
+import { toggleCategoryDeployment, deployCategoryToPlatform } from './services/deployService';
 import { Button } from './components/ui/Button';
+import { Switch } from './components/ui/Switch';
 
 function App() {
   const [activeCategoryId, setActiveCategoryId] = useState('all');
@@ -20,6 +22,7 @@ function App() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [platformId, setPlatformId] = useState('claude');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCategoryEnabled, setIsCategoryEnabled] = useState(false);
 
   const fetchCategories = async () => {
     const cats = await getAllCategories();
@@ -47,11 +50,18 @@ function App() {
       tags: s.categories || [],
       enabled: s.enabled || false,
     })));
+
+    if (activeCategoryId !== 'all') {
+      const status = await getCategoryStatus(activeCategoryId, platformId);
+      setIsCategoryEnabled(status);
+    } else {
+      setIsCategoryEnabled(false);
+    }
   };
 
   useEffect(() => {
     fetchCategories();
-  }, [skills]); // Refresh categories count when skills change
+  }, [skills]);
 
   useEffect(() => {
     fetchSkills();
@@ -59,7 +69,21 @@ function App() {
 
   const handleToggleSkill = async (id: string, enabled: boolean) => {
     await toggleSkillStatus(id, platformId, enabled);
+    // If category is enabled, we need to update symlinks
+    if (activeCategoryId !== 'all') {
+      await deployCategoryToPlatform(activeCategoryId, platformId);
+    }
     fetchSkills();
+  };
+
+  const handleToggleCategory = async (enabled: boolean) => {
+    if (activeCategoryId === 'all') return;
+    try {
+      await toggleCategoryDeployment(activeCategoryId, platformId, enabled);
+      fetchSkills();
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const handleImport = async () => {
@@ -114,10 +138,25 @@ function App() {
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold tracking-tight">{activeCategoryName}</h2>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">共 {skills.length} 个 Skill</span>
+            <div className="flex flex-col gap-1">
+              <h2 className="text-2xl font-bold tracking-tight">{activeCategoryName}</h2>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                共 {skills.length} 个 Skill
+              </span>
             </div>
+            
+            {activeCategoryId !== 'all' && (
+              <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-lg border shadow-sm">
+                <div className="flex flex-col items-end">
+                  <span className="text-xs font-bold">一键部署到 {platformId === 'claude' ? 'Claude' : 'Codex'}</span>
+                  <span className="text-[10px] text-muted-foreground">{isCategoryEnabled ? '已启用符号链接' : '未部署'}</span>
+                </div>
+                <Switch 
+                  checked={isCategoryEnabled} 
+                  onCheckedChange={handleToggleCategory}
+                />
+              </div>
+            )}
           </div>
 
           {skills.length === 0 ? (

@@ -85,6 +85,15 @@ export async function toggleSkillStatus(skillId: string, platformId: string, ena
   `, [skillId, platformId, enabled ? 1 : 0]);
 }
 
+export async function getCategoryStatus(categoryId: string, platformId: string): Promise<boolean> {
+  const db = await getDb();
+  const status = await db.select<any[]>(
+    "SELECT enabled FROM category_platform_status WHERE category_id = ? AND platform_id = ?",
+    [categoryId, platformId]
+  );
+  return status.length > 0 && status[0].enabled === 1;
+}
+
 export async function getAllCategories(): Promise<Category[]> {
   const db = await getDb();
   const categories = await db.select<any[]>("SELECT * FROM categories");
