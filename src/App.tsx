@@ -10,7 +10,8 @@ import {
 import { Sidebar, Category } from './components/layout/Sidebar';
 import { SkillCard, Skill } from './components/skill/SkillCard';
 import { SettingsModal } from './components/layout/SettingsModal';
-import { getAllCategories, getSkillsByCategory, toggleSkillStatus, importSkill } from './services/skillService';
+import { getAllCategories, getSkillsByCategory, toggleSkillStatus } from './services/skillService';
+import { pickAndImportSkill } from './services/importService';
 import { Button } from './components/ui/Button';
 
 function App() {
@@ -62,10 +63,14 @@ function App() {
   };
 
   const handleImport = async () => {
-    // Basic implementation for now - just add a dummy skill
-    const dummyName = `Demo Skill ${skills.length + 1}`;
-    await importSkill(dummyName, "这是一个通过示例代码导入的 Skill。", "dummy/path/" + dummyName);
-    fetchSkills();
+    try {
+      const result = await pickAndImportSkill();
+      if (result) {
+        fetchSkills();
+      }
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const activeCategoryName = categories.find(c => c.id === activeCategoryId)?.name || 'Skills';
