@@ -1,95 +1,83 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Search, 
-  Plus, 
-  Settings, 
-  ChevronRight, 
   Folder, 
   Archive, 
   Code, 
   BarChart2, 
   Download,
-  Bot
 } from 'lucide-react';
-import { cn } from './lib/utils';
+import { Sidebar, Category } from './components/layout/Sidebar';
+import { SkillCard, Skill } from './components/skill/SkillCard';
+import { SettingsModal } from './components/layout/SettingsModal';
+import { getAllCategories, getSkillsByCategory, toggleSkillStatus, importSkill } from './services/skillService';
+import { Button } from './components/ui/Button';
 
 function App() {
-  const [activeCategory, setActiveCategory] = useState('前端开发');
+  const [activeCategoryId, setActiveCategoryId] = useState('all');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [platformId, setPlatformId] = useState('claude');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const categories = [
-    { name: '全部 Skills', icon: Folder, count: 42 },
-    { name: '未分类', icon: Archive, count: 3 },
-    { name: '前端开发', icon: Code, count: 12, color: 'text-blue-500' },
-    { name: '数据分析', icon: BarChart2, count: 8, color: 'text-green-500' },
-  ];
+  const fetchCategories = async () => {
+    const cats = await getAllCategories();
+    // Add "All Skills" manually
+    const allCount = cats.reduce((acc, curr) => acc + (curr.count || 0), 0);
+    const formattedCats: Category[] = [
+      { id: 'all', name: '全部 Skills', icon: Folder, count: allCount },
+      ...cats.map(c => ({
+        id: c.id,
+        name: c.name,
+        icon: c.id === 'unclassified' ? Archive : (c.name === '数据分析' ? BarChart2 : Code),
+        count: c.count || 0,
+        color: c.id === 'unclassified' ? '' : (c.name === '数据分析' ? 'text-green-500' : 'text-blue-500')
+      }))
+    ];
+    setCategories(formattedCats);
+  };
+
+  const fetchSkills = async () => {
+    const fetchedSkills = await getSkillsByCategory(activeCategoryId, platformId);
+    setSkills(fetchedSkills.map(s => ({
+      id: s.id,
+      name: s.name,
+      description: s.original_description || '',
+      tags: s.categories || [],
+      enabled: s.enabled || false,
+    })));
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, [skills]); // Refresh categories count when skills change
+
+  useEffect(() => {
+    fetchSkills();
+  }, [activeCategoryId, platformId]);
+
+  const handleToggleSkill = async (id: string, enabled: boolean) => {
+    await toggleSkillStatus(id, platformId, enabled);
+    fetchSkills();
+  };
+
+  const handleImport = async () => {
+    // Basic implementation for now - just add a dummy skill
+    const dummyName = `Demo Skill ${skills.length + 1}`;
+    await importSkill(dummyName, "这是一个通过示例代码导入的 Skill。", "dummy/path/" + dummyName);
+    fetchSkills();
+  };
+
+  const activeCategoryName = categories.find(c => c.id === activeCategoryId)?.name || 'Skills';
 
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
-      {/* Sidebar */}
-      <aside className="w-64 border-r bg-muted/30 flex flex-col shrink-0">
-        <div className="p-4 flex items-center gap-2 border-b">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
-            <Bot size={20} />
-          </div>
-          <h1 className="font-bold text-lg tracking-tight">SkillShelf</h1>
-        </div>
-
-        <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-          {/* AI Platform Selector */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1">
-              目标 AI 平台
-            </label>
-            <div className="flex items-center justify-between p-2 rounded-md border bg-card hover:bg-accent cursor-pointer transition-colors">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🤖</span>
-                <span className="text-sm font-medium">Claude Code</span>
-              </div>
-              <ChevronRight size={14} className="text-muted-foreground" />
-            </div>
-          </div>
-
-          {/* Category Tree */}
-          <div className="space-y-1">
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1 py-2">
-              分类树 (CATEGORIES)
-            </div>
-            <div className="space-y-1">
-              {categories.map((cat) => (
-                <div
-                  key={cat.name}
-                  onClick={() => setActiveCategory(cat.name)}
-                  className={cn(
-                    "group flex items-center justify-between p-2 rounded-md cursor-pointer transition-all",
-                    activeCategory === cat.name 
-                      ? "bg-primary/10 text-primary" 
-                      : "hover:bg-accent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <cat.icon size={18} className={cat.color} />
-                    <span className="text-sm font-medium">{cat.name}</span>
-                  </div>
-                  <span className="text-xs font-medium bg-muted px-1.5 py-0.5 rounded-full group-hover:bg-accent-foreground/10">
-                    {cat.count}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <button className="flex items-center gap-2 w-full p-2 mt-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors">
-              <Plus size={16} />
-              新建分类
-            </button>
-          </div>
-        </div>
-
-        <div className="p-4 border-t mt-auto">
-          <button className="flex items-center gap-2 w-full p-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors">
-            <Settings size={18} />
-            设置与偏好
-          </button>
-        </div>
-      </aside>
+      <Sidebar 
+        activeCategoryId={activeCategoryId} 
+        onCategoryChange={setActiveCategoryId}
+        categories={categories}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col bg-card min-w-0">
@@ -111,49 +99,43 @@ function App() {
               <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
               最后同步: 5 分钟前
             </div>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors">
+            <Button onClick={handleImport} className="gap-2 h-9">
               <Download size={16} />
               导入 .zip
-            </button>
+            </Button>
           </div>
         </header>
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold tracking-tight">{activeCategory}</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{activeCategoryName}</h2>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">共 12 个 Skill</span>
+              <span className="text-xs text-muted-foreground">共 {skills.length} 个 Skill</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {/* Placeholder for Skill Cards */}
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="group p-4 rounded-xl border bg-card hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center group-hover:bg-primary/5 transition-colors">
-                    <Code size={20} className="text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div className="flex items-center h-6">
-                    <div className="w-8 h-4 bg-primary/20 rounded-full relative">
-                      <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-primary rounded-full" />
-                    </div>
-                  </div>
-                </div>
-                <h3 className="font-semibold text-base mb-1 group-hover:text-primary transition-colors">Academic Forge</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                  提供学术研究相关的 Skill 集合，支持论文检索、格式化和引文管理。
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="text-[10px] px-2 py-0.5 bg-muted rounded-md font-medium">Research</span>
-                  <span className="text-[10px] px-2 py-0.5 bg-muted rounded-md font-medium">Academic</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {skills.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-xl text-muted-foreground">
+              <Code size={48} className="mb-4 opacity-20" />
+              <p>暂无 Skill，点击右上方“导入”开始吧</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {skills.map((skill) => (
+                <SkillCard 
+                  key={skill.id} 
+                  skill={skill} 
+                  onToggle={handleToggleSkill}
+                  onClick={(id) => console.log('Skill clicked:', id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </main>
+
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }

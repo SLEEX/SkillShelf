@@ -24,12 +24,14 @@ interface SidebarProps {
   activeCategoryId: string;
   onCategoryChange: (id: string) => void;
   categories: Category[];
+  onOpenSettings: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeCategoryId, 
   onCategoryChange,
-  categories 
+  categories,
+  onOpenSettings
 }) => {
   return (
     <aside className="w-64 border-r bg-muted/30 flex flex-col shrink-0 h-full">
@@ -90,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className="p-4 border-t mt-auto">
-        <Button variant="ghost" className="w-full justify-start gap-2 h-9 px-2 text-muted-foreground font-medium">
+        <Button onClick={onOpenSettings} variant="ghost" className="w-full justify-start gap-2 h-9 px-2 text-muted-foreground font-medium">
           <Settings size={18} />
           设置与偏好
         </Button>

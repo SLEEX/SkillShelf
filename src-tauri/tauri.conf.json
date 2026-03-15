@@ -13,14 +13,27 @@
     "windows": [
       {
         "title": "SkillShelf",
-        "width": 800,
-        "height": 600,
+        "width": 1000,
+        "height": 700,
         "resizable": true,
         "fullscreen": false
       }
     ],
     "security": {
       "csp": null
+    }
+  },
+  "plugins": {
+    "sql": {
+      "preload": [
+        "sqlite:skillshelf.db"
+      ]
+    },
+    "fs": {
+      "scope": ["**"]
+    },
+    "shell": {
+      "open": true
     }
   },
   "bundle": {
