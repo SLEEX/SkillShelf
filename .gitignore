@@ -3,5 +3,9 @@ development/dist/
 development/src-tauri/target/
 development/src-tauri/gen/
 .DS_Store
+
+# Trae AI
+.trae/
+
 # Releases (Local backups only, do not commit large binaries)
 releases/
