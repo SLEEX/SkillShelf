@@ -28,8 +28,8 @@ export async function deployCategoryToPlatform(categoryId: string, platformId: s
   );
   const isCategoryEnabled = catStatus.length > 0 && catStatus[0].enabled === 1;
 
-  // 4. Process each skill
-  for (const skill of skills) {
+  // 4. Process each skill in parallel
+  await Promise.all(skills.map(async (skill) => {
     const skillName = await basename(skill.path);
     const linkPath = await join(platformPath, skillName);
     
@@ -45,7 +45,7 @@ export async function deployCategoryToPlatform(categoryId: string, platformId: s
         link: linkPath 
       });
     }
-  }
+  }));
 }
 
 export async function toggleCategoryDeployment(categoryId: string, platformId: string, enabled: boolean) {

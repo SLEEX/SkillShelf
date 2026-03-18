@@ -6,6 +6,16 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    "dialog:allow-open",
+    "fs:allow-read",
+    "fs:allow-write",
+    "fs:allow-mkdir",
+    "fs:allow-copy-file",
+    "fs:allow-exists",
+    "shell:allow-open",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:allow-select"
   ]
 }

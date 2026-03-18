@@ -3,21 +3,19 @@ import {
   Plus, 
   Settings, 
   ChevronRight, 
-  Folder, 
-  Archive, 
-  Code, 
-  BarChart2, 
   Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
+import { getIconByName } from '@/lib/icons';
 
 export interface Category {
   id: string;
   name: string;
-  icon?: any;
+  icon?: string;
   count: number;
   color?: string;
+  enabled?: boolean;
 }
 
 interface SidebarProps {
@@ -25,6 +23,7 @@ interface SidebarProps {
   onCategoryChange: (id: string) => void;
   categories: Category[];
   onOpenSettings: () => void;
+  onOpenAddCategory: () => void;
   platformId: string;
   onPlatformChange: (id: string) => void;
 }
@@ -34,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCategoryChange,
   categories,
   onOpenSettings,
+  onOpenAddCategory,
   platformId,
   onPlatformChange
 }) => {
@@ -105,8 +105,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
               >
                 <div className="flex items-center gap-2.5">
-                  {cat.icon ? <cat.icon size={18} className={cat.color} /> : <Folder size={18} className={cat.color} />}
-                  <span className="text-sm font-medium">{cat.name}</span>
+                  {cat.icon ? (
+                    (() => {
+                      const Icon = getIconByName(cat.icon);
+                      return <Icon size={18} className={cat.color} />;
+                    })()
+                  ) : (
+                    <div className="w-[18px] h-[18px] flex items-center justify-center">
+                      <div 
+                        className={cn(
+                          "w-2 h-2 rounded-full transition-all shadow-[0_0_8px_rgba(0,0,0,0.1)]",
+                          cat.enabled ? "bg-green-500 shadow-green-500/50" : "bg-muted-foreground/30"
+                        )} 
+                      />
+                    </div>
+                  )}
+                  <span className={cn(
+                    "text-sm font-medium",
+                    !cat.icon && !cat.enabled && "opacity-70"
+                  )}>{cat.name}</span>
                 </div>
                 <span className="text-[10px] font-bold bg-muted px-1.5 py-0.5 rounded-full group-hover:bg-accent-foreground/10">
                   {cat.count}
@@ -114,7 +131,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             ))}
           </div>
-          <Button variant="ghost" className="w-full justify-start gap-2 h-9 px-2 text-muted-foreground font-medium mt-1">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-2 h-9 px-2 text-muted-foreground font-medium mt-1"
+            onClick={onOpenAddCategory}
+          >
             <Plus size={16} />
             新建分类
           </Button>

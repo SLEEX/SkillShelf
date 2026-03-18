@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { initDb } from "./services/db";
+import { ToastProvider } from "./components/ui/Toast";
 
 const Root = () => {
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,11 @@ const Root = () => {
     );
   }
 
-  return <App />;
+  return (
+    <ToastProvider>
+      <App />
+    </ToastProvider>
+  );
 };
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

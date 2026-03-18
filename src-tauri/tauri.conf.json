@@ -5,7 +5,7 @@
   "identifier": "com.tauri.dev",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://localhost:1425",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
   },
@@ -30,7 +30,6 @@
       ]
     },
     "fs": {
-      "scope": ["**"]
     },
     "shell": {
       "open": true

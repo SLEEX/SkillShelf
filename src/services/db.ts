@@ -30,9 +30,17 @@ export async function initDb() {
       name TEXT NOT NULL,
       description TEXT,
       color TEXT,
+      icon TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migration: Add icon column if it doesn't exist
+  try {
+    await database.execute("ALTER TABLE categories ADD COLUMN icon TEXT");
+  } catch (e) {
+    // Column might already exist, ignore error
+  }
 
   // 3. Create skill_categories mapping table (Many-to-Many)
   await database.execute(`
