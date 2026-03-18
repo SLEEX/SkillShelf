@@ -33,7 +33,7 @@ SkillShelf 是一款专为 AI 开发者设计的 **Skill 管理与部署工具**
 
 ---
 
-## � 使用指南 (Usage Guide)
+## 📖 使用指南 (Usage Guide)
 
 ### 1. 基础配置
 - **设置本地库路径**：首次使用时，在“设置”中指定一个文件夹作为你的 **Skill 本地真源库**。
@@ -58,7 +58,7 @@ SkillShelf 是一款专为 AI 开发者设计的 **Skill 管理与部署工具**
 
 ---
 
-## �� 开发指南 (Development Guide)
+## 🚀 开发指南 (Development Guide)
 
 ### 1. 环境准备
 确保你的电脑已安装：
@@ -107,7 +107,11 @@ npm run tauri build
 
 ## 📸 界面预览
 
-*(请在此处插入你的截图)*
+### 主界面 (Home)
+![Home Screen](planning/screenshot/Home.png)
+
+### 设置界面 (Settings)
+![Settings Screen](planning/screenshot/Setting.png)
 
 ---
 
